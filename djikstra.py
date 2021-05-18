@@ -28,6 +28,8 @@ class Spot:
         self.prev = None
         self.wall = False
         self.visited = False
+        if (i+j)%7 == 0:
+            self.wall == True
         # if random.randint(0, 100) < 20:
         #     self.wall = True
         
@@ -48,6 +50,15 @@ class Spot:
             self.neighbors.append(grid[self.x][self.y+1])
         if self.y > 0:
             self.neighbors.append(grid[self.x][self.y-1])
+        #Add Diagonals
+        # if self.x < cols - 1 and self.y < rows - 1:
+        #     self.neighbors.append(grid[self.x+1][self.y+1])
+        # if self.x < cols - 1 and self.y > 0:
+        #     self.neighbors.append(grid[self.x+1][self.y-1])
+        # if self.x > 0 and self.y < rows - 1:
+        #     self.neighbors.append(grid[self.x-1][self.y+1])
+        # if self.x > 0 and self.y > 0:
+        #     self.neighbors.append(grid[self.x-1][self.y-1])
 
 
 def clickWall(pos, state):
@@ -71,8 +82,8 @@ for i in range(cols):
         grid[i][j].add_neighbors(grid)
 
     
-start = grid[cols//2][rows//2]
-end = grid[cols-50][rows - cols//2]
+start = grid[0][0]
+end = grid[cols - cols//2][rows - cols//4]
 start.wall = False
 end.wall = False
 
@@ -89,14 +100,12 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.MOUSEBUTTONUP:
-                if pygame.mouse.get_pressed(0):
-                    clickWall(pygame.mouse.get_pos(), True)
-                if pygame.mouse.get_pressed(2):
-                    clickWall(pygame.mouse.get_pos(), False)
-            if event.type == pygame.MOUSEMOTION:
-                if pygame.mouse.get_pressed()[0]:
-                    clickWall(pygame.mouse.get_pos(), True)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button in (1, 3):  
+                    clickWall(pygame.mouse.get_pos(), event.button==1)
+            elif event.type == pygame.MOUSEMOTION:
+                if event.buttons[0] or event.buttons[2]:
+                    clickWall(pygame.mouse.get_pos(), event.buttons[0])
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     startflag = True
@@ -135,10 +144,11 @@ def main():
                 spot = grid[i][j]
                 spot.show(win, (44, 62, 80))
                 if spot in path:
-                    spot.show(win, (192, 57, 43))
+                    spot.show(win, (46, 204, 113))
+                    spot.show(win, (192, 57, 43), 0)
                 elif spot.visited:
                     spot.show(win, (39, 174, 96))
-                if spot in queue:
+                if spot in queue and not flag:
                     spot.show(win, (44, 62, 80))
                     spot.show(win, (39, 174, 96), 0)
                 if spot == start:
